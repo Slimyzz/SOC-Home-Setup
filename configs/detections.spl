@@ -1,0 +1,23 @@
+# Splunk searches used in this lab
+# Run in Search & Reporting with the time range set to Last 24 hours
+
+# 1. Repeated failed logins (Event 4625) | MITRE T1110 Brute Force
+index=lab EventCode=4625
+| stats count by Account_Name
+| where count > 3
+
+# 2. New local account created (Event 4720) | MITRE T1136.001 Create Local Account
+index=lab EventCode=4720
+| table _time, Account_Name, Subject_Account_Name
+
+# 3. User added to a group (Event 4732) | MITRE T1098 Account Manipulation
+index=lab EventCode=4732
+| table _time, Group_Name, Member_Security_ID, Subject_Account_Name
+
+# 4. Scheduled task created (Event 4698) | MITRE T1053.005 Scheduled Task
+index=lab EventCode=4698
+| table _time, Task_Name, Account_Name
+
+# 5. Discovery commands (Sysmon Event 1) | MITRE T1059.001 PowerShell, T1087 Account Discovery
+index=lab source="*Sysmon*" EventCode=1 (CommandLine="*whoami*" OR CommandLine="*net user*" OR CommandLine="*ipconfig*")
+| table _time, User, Image, CommandLine, ParentImage
